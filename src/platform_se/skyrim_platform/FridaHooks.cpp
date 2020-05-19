@@ -41,50 +41,40 @@ G_DEFINE_TYPE_EXTENDED(ExampleListener, example_listener, G_TYPE_OBJECT, 0,
                        G_IMPLEMENT_INTERFACE(GUM_TYPE_INVOCATION_LISTENER,
                                              example_listener_iface_init))
 
+static GumInterceptor* g_interceptor = nullptr;
+static GumInvocationListener* g_listener = nullptr;
+
+void Intercept(int offset, _ExampleHookId hookId)
+{
+  int r = gum_interceptor_attach(g_interceptor,
+                                 (void*)(REL::Module::BaseAddr() + offset),
+                                 g_listener, GSIZE_TO_POINTER(hookId));
+
+  if (GUM_ATTACH_OK != r) {
+    char buf[1025];
+    sprintf_s(buf, "Interceptor failed with %d trying to hook %d", int(r),
+              offset);
+    MessageBox(0, buf, "Error", MB_ICONERROR);
+  }
+}
+
 void SetupFridaHooks()
 {
-  GumInterceptor* interceptor;
-  GumInvocationListener* listener;
-
   gum_init_embedded();
 
-  interceptor = gum_interceptor_obtain();
-  listener = (GumInvocationListener*)g_object_new(EXAMPLE_TYPE_LISTENER, NULL);
+  g_interceptor = gum_interceptor_obtain();
+  g_listener =
+    (GumInvocationListener*)g_object_new(EXAMPLE_TYPE_LISTENER, NULL);
 
   int r;
 
-  gum_interceptor_begin_transaction(interceptor);
-  r = gum_interceptor_attach(
-    interceptor, (void*)(REL::Module::BaseAddr() + 6353472), listener,
-    GSIZE_TO_POINTER(HOOK_SEND_ANIMATION_EVENT));
+  gum_interceptor_begin_transaction(g_interceptor);
 
-  if (GUM_ATTACH_OK != r) {
-    char buf[1025];
-    sprintf_s(buf, "Interceptor failed with %d", int(r));
-    MessageBox(0, buf, "Error", MB_ICONERROR);
-  }
+  Intercept(6353472, HOOK_SEND_ANIMATION_EVENT);
+  Intercept(6104992, DRAW_SHEATHE_WEAPON_ACTOR);
+  Intercept(7141008, DRAW_SHEATHE_WEAPON_PC);
 
-  gum_interceptor_attach(interceptor,
-                         (void*)(REL::Module::BaseAddr() + 6104992), listener,
-                         GSIZE_TO_POINTER(DRAW_SHEATHE_WEAPON_ACTOR));
-
-  if (GUM_ATTACH_OK != r) {
-    char buf[1025];
-    sprintf_s(buf, "Interceptor failed with %d", int(r));
-    MessageBox(0, buf, "Error", MB_ICONERROR);
-  }
-
-  gum_interceptor_attach(interceptor,
-                         (void*)(REL::Module::BaseAddr() + 7141008), listener,
-                         GSIZE_TO_POINTER(DRAW_SHEATHE_WEAPON_PC));
-
-  if (GUM_ATTACH_OK != r) {
-    char buf[1025];
-    sprintf_s(buf, "Interceptor failed with %d", int(r));
-    MessageBox(0, buf, "Error", MB_ICONERROR);
-  }
-
-  gum_interceptor_end_transaction(interceptor);
+  gum_interceptor_end_transaction(g_interceptor);
 }
 
 static void example_listener_on_enter(GumInvocationListener* listener,
