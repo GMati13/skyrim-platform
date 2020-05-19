@@ -11,6 +11,7 @@
 
 #include "EventsApi.h"
 #include "PapyrusTESModPlatform.h"
+#include "PatternScanner.h"
 #include "StringHolder.h"
 #include <RE/ConsoleLog.h>
 #include <RE/TESObjectREFR.h>
@@ -29,7 +30,8 @@ enum _ExampleHookId
 {
   HOOK_SEND_ANIMATION_EVENT,
   DRAW_SHEATHE_WEAPON_ACTOR,
-  DRAW_SHEATHE_WEAPON_PC
+  DRAW_SHEATHE_WEAPON_PC,
+  SET_ANIMATION_VARIABLE_FLOAT
 };
 
 static void example_listener_iface_init(gpointer g_iface, gpointer iface_data);
@@ -43,6 +45,7 @@ G_DEFINE_TYPE_EXTENDED(ExampleListener, example_listener, G_TYPE_OBJECT, 0,
 
 static GumInterceptor* g_interceptor = nullptr;
 static GumInvocationListener* g_listener = nullptr;
+static PatternScanner::MemoryRegion* g_mr = nullptr;
 
 void Intercept(int offset, _ExampleHookId hookId)
 {
@@ -65,6 +68,8 @@ void SetupFridaHooks()
   g_interceptor = gum_interceptor_obtain();
   g_listener =
     (GumInvocationListener*)g_object_new(EXAMPLE_TYPE_LISTENER, NULL);
+  g_mr = new PatternScanner::MemoryRegion;
+  PatternScanner::GetSkyrimMemoryRegion(g_mr);
 
   int r;
 
@@ -73,6 +78,14 @@ void SetupFridaHooks()
   Intercept(6353472, HOOK_SEND_ANIMATION_EVENT);
   Intercept(6104992, DRAW_SHEATHE_WEAPON_ACTOR);
   Intercept(7141008, DRAW_SHEATHE_WEAPON_PC);
+
+  auto ptr_SetAnimationVariableFloat = PatternScanner::PatternScanInternal(
+    g_mr,
+    std::vector<BYTE>{ 0xF3, 0x0F, 0x11, 0x54, 0x24, 0x18, 0x48, 0x83, 0xEC,
+                       0x28, 0x4C, 0x8D });
+  Intercept((size_t)ptr_SetAnimationVariableFloat -
+              (size_t)REL::Module::BaseAddr(),
+            SET_ANIMATION_VARIABLE_FLOAT);
 
   gum_interceptor_end_transaction(g_interceptor);
 }
@@ -125,7 +138,7 @@ static void example_listener_on_enter(GumInvocationListener* listener,
       }
       break;
     }
-    case HOOK_SEND_ANIMATION_EVENT:
+    case HOOK_SEND_ANIMATION_EVENT: {
       auto refr = _ic->cpu_context->rcx
         ? (RE::TESObjectREFR*)(_ic->cpu_context->rcx - 0x38)
         : nullptr;
@@ -148,6 +161,34 @@ static void example_listener_on_enter(GumInvocationListener* listener,
                                                     newAnimEventName);
       }
       break;
+    }
+    case SET_ANIMATION_VARIABLE_FLOAT: {
+      auto refr = _ic->cpu_context->rcx
+        ? (RE::TESObjectREFR*)(_ic->cpu_context->rcx - 0x38)
+        : nullptr;
+      uint32_t formId = refr ? refr->formID : 0;
+
+      std::vector<gpointer> v;
+
+      for (int i = 0; i < 5; ++i) {
+        v.push_back(gum_invocation_context_get_nth_argument(ic, i));
+      }
+      if (0x14 != formId)
+        RE::ConsoleLog::GetSingleton()->Print(
+          "SET_ANIMATION_VARIABLE_FLOAT %x %p %s %f %p %p", formId, v[0],
+          *(char**)v[1], v[2], v[3], v[4]);
+
+      /*auto name = (char**)gum_invocation_context_get_nth_argument(ic, 2);
+      auto valRaw = gum_invocation_context_get_nth_argument(ic, 3);
+      float* value = reinterpret_cast<float*>(&valRaw);
+
+      if (!name || !value)
+        break;
+
+      RE::ConsoleLog::GetSingleton()->Print(
+        "SET_ANIMATION_VARIABLE_FLOAT %s %f", *name, *value);*/
+      break;
+    }
   }
 }
 
