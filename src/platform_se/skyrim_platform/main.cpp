@@ -42,7 +42,7 @@ void SetupFridaHooks();
 static SKSETaskInterface* g_taskInterface = nullptr;
 static SKSEMessagingInterface* g_messaging = nullptr;
 static SKSESerializationInterface* g_serialization = nullptr;
-static PluginHandle g_pluginHandle = kPluginHandle_Invalid;
+
 ThreadPoolWrapper g_pool;
 HttpClient g_httpClient;
 
@@ -247,6 +247,11 @@ const UInt32 kSerializationDataVersion = 1;
 
 void Serialization_Revert(SKSESerializationInterface* intfc)
 {
+  auto c = RE::ConsoleLog::GetSingleton();
+
+  if (c) {
+    c->Print("Revert");
+  }
 }
 
 void Serialization_Save(SKSESerializationInterface* intfc)
@@ -336,13 +341,13 @@ __declspec(dllexport) bool SKSEPlugin_Load(const SKSEInterface* skse)
     return false;
   }
 
-  g_serialization = (SKSESerializationInterface*)skse->QueryInterface(
+ /* g_serialization = (SKSESerializationInterface*)skse->QueryInterface(
     kInterface_Serialization);
   if (!g_serialization) {
     _FATALERROR("couldn't get serialization interface");
 
     return false;
-  }
+  }*/
 
   auto papyrusInterface = static_cast<SKSEPapyrusInterface*>(
     skse->QueryInterface(kInterface_Papyrus));
@@ -350,7 +355,7 @@ __declspec(dllexport) bool SKSEPlugin_Load(const SKSEInterface* skse)
     _FATALERROR("QueryInterface failed for PapyrusInterface");
     return false;
   }
-  g_pluginHandle = skse->GetPluginHandle();
+ // auto pluginHandle = skse->GetPluginHandle();
   SetupFridaHooks();
 
   g_taskInterface->AddTask(new MyUpdateTask(g_taskInterface, OnUpdate));
@@ -359,12 +364,12 @@ __declspec(dllexport) bool SKSEPlugin_Load(const SKSEInterface* skse)
     (SKSEPapyrusInterface::RegisterFunctions)TESModPlatform::Register);
   TESModPlatform::onPapyrusUpdate = OnPapyrusUpdate;
 
-  /*g_serialization->SetUniqueID(g_pluginHandle, 'SMOP');
+  /*g_serialization->SetUniqueID(pluginHandle, 'SMOP');
 
-  g_serialization->SetRevertCallback(g_pluginHandle, Serialization_Revert);
-  g_serialization->SetSaveCallback(g_pluginHandle, Serialization_Save);
-  g_serialization->SetLoadCallback(g_pluginHandle, Serialization_Load);*/
-
+  g_serialization->SetRevertCallback(pluginHandle, Serialization_Revert);
+  g_serialization->SetSaveCallback(pluginHandle, Serialization_Save);
+  g_serialization->SetLoadCallback(pluginHandle, Serialization_Load);
+  */
   return true;
 }
 };
