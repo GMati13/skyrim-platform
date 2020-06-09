@@ -29,3 +29,10 @@ inline void Register(JsValue& exports)
   exports.SetProperty("hooks", GetHooks());
 }
 }
+
+/*namespace EventsGlobalStateManager {
+  struct EventsGlobalStateData;
+
+  static EventsGlobalStateData GetEventsGlobalState();
+  static void SetEventsGlobalState(EventsGlobalStateData newState);
+};*/

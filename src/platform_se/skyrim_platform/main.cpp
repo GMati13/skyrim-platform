@@ -43,6 +43,8 @@ static SKSETaskInterface* g_taskInterface = nullptr;
 static SKSEMessagingInterface* g_messaging = nullptr;
 static SKSESerializationInterface* g_serialization = nullptr;
 
+SKSESerializationInterface* g_serialization = nullptr;
+
 ThreadPoolWrapper g_pool;
 HttpClient g_httpClient;
 
@@ -241,14 +243,9 @@ void OnPapyrusUpdate(RE::BSScript::IVirtualMachine* vm, RE::VMStackID stackId)
   g_nativeCallRequirements.vm = nullptr;
 }
 
-namespace {
-const UInt32 kSerializationDataVersion = 1;
-}
-
 void Serialization_Revert(SKSESerializationInterface* intfc)
 {
   auto c = RE::ConsoleLog::GetSingleton();
-
   if (c) {
     c->Print("Revert");
   }
@@ -262,11 +259,11 @@ void Serialization_Save(SKSESerializationInterface* intfc)
     c->Print("save");
   }
 
- /* if (intfc->OpenRecord('DATA', kSerializationDataVersion)) {
-    auto data = EventsApi::GetEventsGlobalState();
+  /* if (intfc->OpenRecord('DATA', kSerializationDataVersion)) {
+     auto data = EventsApi::GetEventsGlobalState();
 
-    intfc->WriteRecordData(data.first, data.second);
-  }*/
+     intfc->WriteRecordData(data.first, data.second);
+   }*/
 }
 
 void Serialization_Load(SKSESerializationInterface* intfc)
@@ -282,33 +279,33 @@ void Serialization_Load(SKSESerializationInterface* intfc)
   UInt32 length;
   bool error = false;
 
- /* while (!error && intfc->GetNextRecordInfo(&type, &version, &length)) {
-    switch (type) {
-      case 'DATA': {
-        if (version == kSerializationDataVersion) {
-          if (length) {
+  /* while (!error && intfc->GetNextRecordInfo(&type, &version, &length)) {
+     switch (type) {
+       case 'DATA': {
+         if (version == kSerializationDataVersion) {
+           if (length) {
 
-            auto buf = new char[length];
-            intfc->ReadRecordData(buf, length);
+             auto buf = new char[length];
+             intfc->ReadRecordData(buf, length);
 
-             EventsGlobalState* newState =
-              reinterpret_cast<EventsGlobalState*>(buf);
-            EventsApi::SetEventsGlobalState(newState);
+              EventsGlobalState* newState =
+               reinterpret_cast<EventsGlobalState*>(buf);
+             EventsApi::SetEventsGlobalState(newState);
 
-          } else {
-            c->Print("empty data ? ");
-          }
-        } else {
-          error = true;
-        }
-      } break;
+           } else {
+             c->Print("empty data ? ");
+           }
+         } else {
+           error = true;
+         }
+       } break;
 
-      default:
-        _MESSAGE("unhandled type %08X", type);
-        error = true;
-        break;
-    }
-  }*/
+       default:
+         _MESSAGE("unhandled type %08X", type);
+         error = true;
+         break;
+     }
+   }*/
 }
 
 extern "C" {
@@ -364,12 +361,20 @@ __declspec(dllexport) bool SKSEPlugin_Load(const SKSEInterface* skse)
     (SKSEPapyrusInterface::RegisterFunctions)TESModPlatform::Register);
   TESModPlatform::onPapyrusUpdate = OnPapyrusUpdate;
 
-  /*g_serialization->SetUniqueID(pluginHandle, 'SMOP');
+  g_serialization = (SKSESerializationInterface*)skse->QueryInterface(
+    kInterface_Serialization);
+  if (!g_serialization) {
+    _FATALERROR("couldn't get serialization interface");
+
+    return false;
+  }
+
+  auto pluginHandle = skse->GetPluginHandle();
+  g_serialization->SetUniqueID(pluginHandle, 'SMOP');
 
   g_serialization->SetRevertCallback(pluginHandle, Serialization_Revert);
   g_serialization->SetSaveCallback(pluginHandle, Serialization_Save);
   g_serialization->SetLoadCallback(pluginHandle, Serialization_Load);
-  */
   return true;
 }
 };

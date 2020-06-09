@@ -49,7 +49,37 @@ struct EventsGlobalState
     std::vector<Handler> handlers;
   };
   HookInfo sendAnimationEvent;
+  JsValue g_storage;
 } g;
+
+/*struct EventsGlobalStateManager::EventsGlobalStateData
+{
+  EventsGlobalState* g = nullptr;
+  uint32_t size = 0;
+};*/
+
+/*EventsGlobalStateManager::EventsGlobalStateData
+EventsGlobalStateManager::GetEventsGlobalState()
+{
+  /*g.g_storage = JsValue::GlobalObject().GetProperty("storage");
+  return { &g, (uint32_t)sizeof(EventsGlobalState) };
+  return EventsGlobalStateData();
+}*/
+
+/*void EventsGlobalStateManager::SetEventsGlobalState(
+  EventsGlobalStateManager::EventsGlobalStateData newState)
+{
+
+  /* if (newState) {
+     auto state = *newState;
+     g.callbacks = state.callbacks;
+     g.callbacksOnce = state.callbacksOnce;
+     g.sendAnimationEvent = state.sendAnimationEvent;
+     g.g_storage = state.g_storage;
+   }
+
+   JsValue::GlobalObject().SetProperty("storage", g.g_storage);
+}*/
 
 namespace {
 struct SendAnimationEventTag
