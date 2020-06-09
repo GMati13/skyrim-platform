@@ -21,7 +21,7 @@ struct EventsGlobalState
   using Callbacks = std::map<std::string, std::vector<JsValue>>;
   Callbacks callbacks;
   Callbacks callbacksOnce;
-  JsValue g_storage;
+
   class Handler
   {
   public:
@@ -52,41 +52,14 @@ struct EventsGlobalState
   JsValue g_storage;
 } g;
 
-/*struct EventsGlobalStateManager::EventsGlobalStateData
-{
-  EventsGlobalState* g = nullptr;
-  uint32_t size = 0;
-};*/
-
-/*EventsGlobalStateManager::EventsGlobalStateData
-EventsGlobalStateManager::GetEventsGlobalState()
-{
-  /*g.g_storage = JsValue::GlobalObject().GetProperty("storage");
-  return { &g, (uint32_t)sizeof(EventsGlobalState) };
-  return EventsGlobalStateData();
-}*/
-
-/*void EventsGlobalStateManager::SetEventsGlobalState(
-  EventsGlobalStateManager::EventsGlobalStateData newState)
-{
-
-  /* if (newState) {
-     auto state = *newState;
-     g.callbacks = state.callbacks;
-     g.callbacksOnce = state.callbacksOnce;
-     g.sendAnimationEvent = state.sendAnimationEvent;
-     g.g_storage = state.g_storage;
-   }
-
-   JsValue::GlobalObject().SetProperty("storage", g.g_storage);
-}*/
-
 namespace {
 struct SendAnimationEventTag
 {
   static constexpr auto name = "sendAnimationEvent";
 };
+}
 
+namespace {
 void CallCalbacks(const char* eventName, const std::vector<JsValue>& arguments,
                   bool isOnce = false)
 {
@@ -107,20 +80,6 @@ void EventsApi::SendEvent(const char* eventName,
 {
   CallCalbacks(eventName, arguments);
   CallCalbacks(eventName, arguments, true);
-}
-
-std::pair<EventsGlobalState*, uint32_t> EventsApi::GetEventsGlobalState()
-{
-  g.g_storage = JsValue::GlobalObject().GetProperty("storage");
-  return { &g, sizeof(EventsGlobalState) };
-}
-
-void EventsApi::SetEventsGlobalState(const EventsGlobalState* newState)
-{
-  Clear();
-  if (newState)
-     g = *newState;
-  JsValue::GlobalObject().SetProperty("storage", g.g_storage);
 }
 
 void EventsApi::Clear()

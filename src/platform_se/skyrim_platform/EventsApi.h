@@ -3,7 +3,6 @@
 #include <RE/TESObjectREFR.h>
 
 class SKSETaskInterface;
-struct EventsGlobalState;
 
 namespace EventsApi {
 JsValue On(const JsFunctionArguments& args);
@@ -11,9 +10,6 @@ JsValue Once(const JsFunctionArguments& args);
 
 void SendEvent(const char* eventName, const std::vector<JsValue>& arguments);
 void Clear();
-
-std::pair<EventsGlobalState* , uint32_t> GetEventsGlobalState();
-void SetEventsGlobalState(const EventsGlobalState* newState);
 
   // Exceptions will be pushed to g_taskQueue
 void SendAnimationEventEnter(uint32_t selfId,
@@ -29,10 +25,3 @@ inline void Register(JsValue& exports)
   exports.SetProperty("hooks", GetHooks());
 }
 }
-
-/*namespace EventsGlobalStateManager {
-  struct EventsGlobalStateData;
-
-  static EventsGlobalStateData GetEventsGlobalState();
-  static void SetEventsGlobalState(EventsGlobalStateData newState);
-};*/
