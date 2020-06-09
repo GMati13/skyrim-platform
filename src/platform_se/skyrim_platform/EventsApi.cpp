@@ -21,7 +21,7 @@ struct EventsGlobalState
   using Callbacks = std::map<std::string, std::vector<JsValue>>;
   Callbacks callbacks;
   Callbacks callbacksOnce;
-
+  JsValue g_storage;
   class Handler
   {
   public:
@@ -56,9 +56,7 @@ struct SendAnimationEventTag
 {
   static constexpr auto name = "sendAnimationEvent";
 };
-}
 
-namespace {
 void CallCalbacks(const char* eventName, const std::vector<JsValue>& arguments,
                   bool isOnce = false)
 {
@@ -79,6 +77,20 @@ void EventsApi::SendEvent(const char* eventName,
 {
   CallCalbacks(eventName, arguments);
   CallCalbacks(eventName, arguments, true);
+}
+
+std::pair<EventsGlobalState*, uint32_t> EventsApi::GetEventsGlobalState()
+{
+  g.g_storage = JsValue::GlobalObject().GetProperty("storage");
+  return { &g, sizeof(EventsGlobalState) };
+}
+
+void EventsApi::SetEventsGlobalState(const EventsGlobalState* newState)
+{
+  Clear();
+  if (newState)
+     g = *newState;
+  JsValue::GlobalObject().SetProperty("storage", g.g_storage);
 }
 
 void EventsApi::Clear()
