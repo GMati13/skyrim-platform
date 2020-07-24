@@ -1,5 +1,6 @@
 #include "CallNativeApi.h"
 #include "CameraApi.h"
+#include "EquipmentApi.h"
 #include "ConsoleApi.h"
 #include "DevApi.h"
 #include "DirectoryMonitor.h"
@@ -180,6 +181,7 @@ void JsTick(bool gameFunctionsAvailable)
               [fileDir](JsValue e) {
                 LoadGameApi::Register(e);
                 CameraApi::Register(e);
+                EquipmentApi::Register(e);
                 MpClientPluginApi::Register(e);
                 HttpClientApi::Register(e);
                 ConsoleApi::Register(e);

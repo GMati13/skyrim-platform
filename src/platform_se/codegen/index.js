@@ -32,6 +32,7 @@ export declare function once(eventName: 'tick', callback: () => void): void;
 export declare function loadGame(pos: number[], angle: number[], worldOrCell: number);
 
 export declare function worldPointToScreenPoint(...args: number[][]): number[][];
+export declare function cloneWeapoForLeftHand(idWeapon:number) : number;
 
 export type PacketType = 'message' | 'disconnect' | 'connectionAccepted' | 'connectionFailed' | 'connectionDenied';
 
