@@ -554,13 +554,6 @@ void TESModPlatform::AddItemEx(
   RE::BSFixedString textDisplayData, SInt32 soul, RE::AlchemyItem* poison,
   SInt32 poisonCount)
 {
-  static std::ofstream f("___TESModPlatformAddItemEx.txt");
-  f << std::hex << containerRefr->formID << " " << item->formID << " "
-    << std::dec << countDelta << " " << health << ' ' << enchantment << ' '
-    << maxCharge << ' ' << removeEnchantmentOnUnequip << ' ' << chargePercent
-    << ' ' << textDisplayData.data() << ' ' << soul << ' ' << poison << ' '
-    << poisonCount << std::endl;
-
   auto ui = RE::UI::GetSingleton();
   if (!containerRefr || !item || !ui || ui->GameIsPaused())
     return;

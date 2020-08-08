@@ -57,9 +57,6 @@ JsValue ConsoleApi::PrintConsole(const JsFunctionArguments& args)
     s += str.ToString() + ' ';
   }
 
-  // static std::ofstream f("___logs.txt");
-  // f << s.data() << std::endl;
-
   int maxSize = 128;
   if (s.size() > maxSize) {
     s.resize(maxSize);
