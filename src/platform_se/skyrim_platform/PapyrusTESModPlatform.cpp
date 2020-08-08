@@ -29,6 +29,7 @@
 #include <RE/TESNPC.h>
 #include <RE/TESObjectARMO.h>
 #include <RE/TESObjectWEAP.h>
+#include <RE/UI.h>
 #include <atomic>
 #include <map>
 #include <mutex>
@@ -553,7 +554,15 @@ void TESModPlatform::AddItemEx(
   RE::BSFixedString textDisplayData, SInt32 soul, RE::AlchemyItem* poison,
   SInt32 poisonCount)
 {
-  if (!containerRefr || !item)
+  static std::ofstream f("___TESModPlatformAddItemEx.txt");
+  f << std::hex << containerRefr->formID << " " << item->formID << " "
+    << std::dec << countDelta << " " << health << ' ' << enchantment << ' '
+    << maxCharge << ' ' << removeEnchantmentOnUnequip << ' ' << chargePercent
+    << ' ' << textDisplayData.data() << ' ' << soul << ' ' << poison << ' '
+    << poisonCount << std::endl;
+
+  auto ui = RE::UI::GetSingleton();
+  if (!containerRefr || !item || !ui || ui->GameIsPaused())
     return;
 
   const auto refrId = containerRefr->GetFormID();
