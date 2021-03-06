@@ -94,11 +94,13 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+Before your start make sure that your system meets the conditions:
+
+* Windows 7 or higher *([Windows 10](https://www.microsoft.com/en-us/software-download/windows10) is recommended)*
+* [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
+* .NET Framework SDK at 4.6.0 or higher *(Visual Studio Installer -> .NET desktop development)*
+* [NodeJS 12.x](https://nodejs.org/en/download/) or higher
+* [CMake 3.17](https://cmake.org/download/) or higher
 
 ### Installation
 
