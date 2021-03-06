@@ -104,18 +104,18 @@ Before your start make sure that your system meets the conditions:
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. Clone the repo, including submodules
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone --recursive https://github.com/skyrim-multiplayer/skyrim-platform.git
    ```
-3. Install NPM packages
+2. Make a build directory (used for project files, cache, artifacts, etc)
    ```sh
-   npm install
+   mkdir build
    ```
-4. Enter your API in `config.js`
-   ```JS
-   const API_KEY = 'ENTER YOUR API';
+3. Generate project files with CMake
+   ```sh
+   cd build
+   cmake ..
    ```
 
 
