@@ -100,7 +100,7 @@ Before your start make sure that your system meets the conditions:
 * [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
 * .NET Framework SDK at 4.6.0 or higher *(Visual Studio Installer -> .NET desktop development)*
 * [NodeJS 12.x](https://nodejs.org/en/download/) or higher
-* [CMake 3.17](https://cmake.org/download/) or higher
+* [CMake 3.20](https://cmake.org/download/) or higher
 
 ### Installation
 
